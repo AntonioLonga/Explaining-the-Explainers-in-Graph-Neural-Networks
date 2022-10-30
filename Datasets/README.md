@@ -1,4 +1,5 @@
-# BA 2 motifs
+# DATASETS
 
-class 0 = BA (random nodes 10-30)  
-class 1 = BA (random nodes 5-25) + house
+here you can use **Generate datasets.ipynb** to see how we generated the dataset used in our study.  
+Then you can use **Explore generated datasets.ipynb** to explore the generated graphs, and how to get the ground truth.
+
