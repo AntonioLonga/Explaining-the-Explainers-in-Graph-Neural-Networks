@@ -23,5 +23,10 @@ Work in progress!
 ### Citation
 
 ```
-to do
+@article{longa2022explaining,
+  title={Explaining the Explainers in Graph Neural Networks: a Comparative Study},
+  author={Longa, Antonio and Azzolin, Steve and Santin, Gabriele and Cencetti, Giulia and Li{\`o}, Pietro and Lepri, Bruno and Passerini, Andrea},
+  journal={arXiv preprint arXiv:2210.15304},
+  year={2022}
+}
 ```
