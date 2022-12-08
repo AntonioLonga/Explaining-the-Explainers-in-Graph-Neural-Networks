@@ -59,6 +59,62 @@ def load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True):
     return graphs
 
 
+def nc_load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True, raw=False):
+    if EXPL in ["sal_edge","ig_edge","gnnexpl"]:
+        FOLDER = "edge_imp"
+    else:
+        FOLDER = "node_imp"
+
+    path = "Explanations/NodeClassification/"+DATASET+"/"+MODEL+"/"+FOLDER+"/"+EXPL+"/"+MODE+"/"
+    graphs = dict()
+
+    labels = os.listdir(path)
+    for lab in labels:
+        graphs[int(lab)] = dict()
+        for i in os.listdir(path+"/"+lab):
+            if i[-7:] == "gpickle":
+                gid,y = i.split(".")[0].split("_")
+                if y == lab:
+                    graphs[int(lab)][int(gid)] = g = nx.read_gpickle(path+"/"+lab+"/"+i)
+
+    
+    # get node/edge attrs
+    g = graphs[0][list(graphs[0].keys())[0]]
+    node_impo = nx.get_node_attributes(g,"node_imp")
+    edge_impo = nx.get_edge_attributes(g,"edge_imp")
+
+    # convert to node_impo
+    if not edge_impo == {}:
+        for lab , graph_dict in graphs.items():
+            for gid,g in graph_dict.items():
+                graphs[lab][gid] = from_edge_to_nodeExpl(g)    
+    if raw:
+        return graphs
+    
+    # clean_expl
+    graphs = nc_get_cleaned_graphs(graphs, explainer_name=EXPL, verbose=verbose, lamb=lamb)    
+
+    # normalize 
+    if normalize:
+        all_node_imp = []
+        for lab,graph_dict in graphs.items():
+            if not graph_dict == None:
+                for gid,g in graph_dict.items():
+                    all_node_imp.extend(list(dict(nx.get_node_attributes(g,"node_imp")).values()))
+        if not all_node_imp == []:
+            min_val = np.min(all_node_imp)
+            max_val = np.max(all_node_imp)
+
+            for lab,graph_dict in graphs.items():
+                if not graph_dict == None:
+                    for gid,g in graph_dict.items():
+                        for node in g.nodes():
+                            orig = g.nodes()[node]["node_imp"]
+                            g.nodes()[node]["node_imp_norm"] = (orig - min_val) / (max_val-min_val)
+
+    return graphs
+
+
 def from_edge_to_nodeExpl(g):
     for n in g.nodes():
         nei = list(nx.neighbors(g,n))
@@ -75,6 +131,8 @@ def clean(graphs,lab,lamb=0.001):
         a = list(nx.get_node_attributes(g,"node_imp").values())
         un_a = np.unique(a)
         if len(un_a)>1:
+            if np.isnan(un_a[-1]) or np.isnan(un_a[0]): #Antonio check if this applies also to GC
+                print("IS NAN")
             diff = un_a[-1] - un_a[0]
             if diff > lamb:
                 graphs_to_keep[gid] = g
@@ -110,3 +168,15 @@ def get_cleaned_graphs(graphs,verbose =True,lamb=0.001):
     return {0:res0, 1:res1}
 
 
+def nc_get_cleaned_graphs(graphs, explainer_name, verbose=True, lamb=0.001):
+    originals , kepts = [] , []
+    for c in sorted(graphs.keys()):
+        original = len(graphs[c])
+        kept = clean(graphs, c, lamb)
+        originals.append(original)
+        kepts.append(kept)
+    
+    if verbose:
+        print(",".join(["{:.3f} ".format(len(kepts[i]) / originals[i]) for i in range(len(originals))]))  #f"{explainer_name:12}: \t", 
+    
+    return {i: kepts[i] if len(kepts[i])/originals[i] >= 0.5 else None for i in range(len(originals))}
