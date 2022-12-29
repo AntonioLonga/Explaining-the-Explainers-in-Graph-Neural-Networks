@@ -1,5 +1,7 @@
 # Explaining-the-Explainers-in-Graph-Neural-Networks
 Repository associated to the paper: ["Explaining the Explainers in Graph Neural Networks: a Comparative Study"](https://arxiv.org/pdf/2210.15304.pdf)
+![Explanations example](img.png)
+
 
 ### Notebooks
 1. **[GC] Load trained model**: it is a notebook to load and explore the trained model
