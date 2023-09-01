@@ -6,7 +6,7 @@ import os
 
 
 def load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True):
-    if EXPL in ["sal_edge","ig_edge","gnnexpl","pgexpl"]:
+    if EXPL in ["sal_edge","ig_edge","gnnexpl","pgexpl","rgexpl"]:
         FOLDER = "edge_imp"
     else:
         FOLDER = "node_imp"
