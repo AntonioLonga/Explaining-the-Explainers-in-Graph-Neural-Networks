@@ -6,7 +6,7 @@ import os
 
 
 def load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True):
-    if EXPL in ["sal_edge","ig_edge","gnnexpl","pgexpl"]:
+    if EXPL in ["sal_edge","ig_edge","gnnexpl","pgexpl","rgexpl"]:
         FOLDER = "edge_imp"
     else:
         FOLDER = "node_imp"
@@ -60,7 +60,7 @@ def load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True):
 
 
 def nc_load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True, raw=False):
-    if EXPL in ["sal_edge","ig_edge","gnnexpl"]:
+    if EXPL in ["sal_edge", "ig_edge", "gnnexpl", "rgexpl"]:
         FOLDER = "edge_imp"
     else:
         FOLDER = "node_imp"
@@ -90,9 +90,9 @@ def nc_load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=Tru
                 graphs[lab][gid] = from_edge_to_nodeExpl(g)    
     if raw:
         return graphs
-    
+
     # clean_expl
-    graphs = nc_get_cleaned_graphs(graphs, explainer_name=EXPL, verbose=verbose, lamb=lamb)    
+    graphs = nc_get_cleaned_graphs(graphs, explainer_name=EXPL, verbose=verbose, lamb=lamb)
 
     # normalize 
     if normalize:
@@ -102,8 +102,8 @@ def nc_load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=Tru
                 for gid,g in graph_dict.items():
                     all_node_imp.extend(list(dict(nx.get_node_attributes(g,"node_imp")).values()))
         if not all_node_imp == []:
-            min_val = np.min(all_node_imp)
-            max_val = np.max(all_node_imp)
+            min_val = min(all_node_imp)
+            max_val = max(all_node_imp)
 
             for lab,graph_dict in graphs.items():
                 if not graph_dict == None:
@@ -122,7 +122,6 @@ def from_edge_to_nodeExpl(g):
         for u in nei:
             scores2.append(g.edges()[(u,n)]["edge_imp"])
         g.nodes()[n]["node_imp"] = np.mean(scores2)
-        
     return g
 
 def clean(graphs,lab,lamb=0.001):
@@ -131,9 +130,9 @@ def clean(graphs,lab,lamb=0.001):
         a = list(nx.get_node_attributes(g,"node_imp").values())
         un_a = np.unique(a)
         if len(un_a)>1:
-            if np.isnan(un_a[-1]) or np.isnan(un_a[0]): #Antonio check if this applies also to GC
-                print("IS NAN")
-            diff = un_a[-1] - un_a[0]
+            #if np.isnan(un_a[-1]) or np.isnan(un_a[0]):
+            #    print("IS NAN")
+            diff = max(un_a) - min(un_a)
             if diff > lamb:
                 graphs_to_keep[gid] = g
     return graphs_to_keep
