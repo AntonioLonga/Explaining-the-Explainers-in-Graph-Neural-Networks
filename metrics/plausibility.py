@@ -186,28 +186,28 @@ def get_shapes_plausibility(graphs, num_layers):
     class_rocs = []
     for c in range(len(graphs)):
         if c == 0 or graphs[c] is None: #class w/o motifs
-            roc = float("nan")    
+            roc = float("nan")
         else:
             roc = gt_roc_ba_shapes(graphs[c], num_layers)
         class_rocs.append(roc)
-        
     return class_rocs
 
 def gt_roc_ba_shapes(graphs, gnn_num_layers):
     res = []
     for n_id , g in graphs.items():
         node_attributes_all = np.array(list(nx.get_node_attributes(g,"node_imp_norm").values()))
-        g = nx.ego_graph(g, n=n_id, radius=gnn_num_layers)        
-        
+        g = nx.ego_graph(g, n=n_id, radius=gnn_num_layers)
+
         GM = isomorphism.GraphMatcher(g, my_house())
         match = list(GM.subgraph_isomorphisms_iter())
-        
+
         # nodes of the motif
         match = match[0] #just take the first possible match
         nodes_match = list(match.keys())
         trues = [1] * len(nodes_match)
+
         preds = node_attributes_all[nodes_match].tolist()
-        
+
         # nodes outside the motif
         trues.extend([0]*(len(g.nodes()) - len(nodes_match)))
         preds.extend(node_attributes_all[[i for i in g.nodes() if i not in nodes_match]])
@@ -215,7 +215,7 @@ def gt_roc_ba_shapes(graphs, gnn_num_layers):
         if len(np.unique(trues)) == 1:
             trues.append(0)
             preds.append(0)
-        
+
         r = roc_auc_score(trues, preds)
         res.append(r)
     return np.mean(res)
