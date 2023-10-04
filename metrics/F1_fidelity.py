@@ -10,16 +10,17 @@ import networkx as nx
 # expl --> only the subgraph
 
 
-def build_expl(DATASET,MODEL,dataset_fun,framework,expl,verbose=False,lamb=0.001,nomralize=True,MODE="train"):
-    
+def build_expl(DATASET, MODEL, dataset_fun, framework,expl, verbose=False, lamb=0.001, nomralize=True, MODE="train"):
     path = "models/"+DATASET+"_"+MODEL
-    print(path)
+    if verbose:
+        print(path)
     dataset = dataset_fun()
-    gcn = framework(dataset,device="cpu")
+    gcn = framework(dataset, device="cpu")
     gcn.load_model(path)
-    gcn.evaluate()
 
-             
+    if verbose:
+        gcn.evaluate()
+
     graphs = load_graphs(DATASET=DATASET,
                          MODEL=MODEL,
                          EXPL=expl,
@@ -27,7 +28,7 @@ def build_expl(DATASET,MODEL,dataset_fun,framework,expl,verbose=False,lamb=0.001
                          verbose=verbose,
                          lamb=lamb,
                          normalize=nomralize)
-    
+
     if MODE == "train":
         c = 0
         for i in gcn.train_loader.dataset:
@@ -36,8 +37,8 @@ def build_expl(DATASET,MODEL,dataset_fun,framework,expl,verbose=False,lamb=0.001
             for n in g.nodes():
                 if not graphs[y] == None:
                     if c in graphs[y]:
-                        assert len(graphs[y][c].nodes()) == len(g.nodes())
-                        assert len(graphs[y][c].edges()) == len(g.edges())
+                        assert len(graphs[y][c].nodes()) == len(g.nodes()), str(len(graphs[y][c].nodes())) + "-" + str(len(g.nodes()))
+                        assert len(graphs[y][c].edges()) == len(g.edges()), str(len(graphs[y][c].nodes())) + "-" + str(len(g.nodes()))
                         graphs[y][c].nodes()[n]["x"] = g.nodes()[n]["x"]
             c = c + 1
     if MODE == "test":
