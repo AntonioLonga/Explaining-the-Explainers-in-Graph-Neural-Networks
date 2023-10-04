@@ -13,7 +13,7 @@ class CreateInfection(object):
         self.sample_count = sample_count
     
     
-    def run(self, num_nodes=1000, seed=42): 
+    def run(self, num_nodes=1000, seed=42):
         self.train_dataset = []
         self.test_dataset = []
         for experiment_i in range(self.sample_count):
@@ -59,6 +59,3 @@ class CreateInfection(object):
         data.x = torch.tensor(features, dtype=torch.float)
         data.y = torch.tensor(labels)
         return data
-
-
-            
