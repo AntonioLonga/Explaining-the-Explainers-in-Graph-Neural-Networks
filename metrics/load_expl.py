@@ -6,7 +6,7 @@ import os
 
 
 def load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=True):
-    if EXPL in ["sal_edge","ig_edge","gnnexpl","pgexpl","rgexpl"]:
+    if EXPL in ["sal_edge","ig_edge","gnnexpl","pgexpl","rgexpl","subgraphX"]:
         FOLDER = "edge_imp"
     else:
         FOLDER = "node_imp"
@@ -66,6 +66,7 @@ def nc_load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=Tru
         FOLDER = "node_imp"
 
     path = "Explanations/NodeClassification/"+DATASET+"/"+MODEL+"/"+FOLDER+"/"+EXPL+"/"+MODE+"/"
+    print(path)
     graphs = dict()
 
     labels = os.listdir(path)
@@ -84,7 +85,7 @@ def nc_load_graphs(DATASET,MODEL,EXPL,MODE,verbose=True,lamb=0.001,normalize=Tru
     edge_impo = nx.get_edge_attributes(g,"edge_imp")
 
     # convert to node_impo
-    if not edge_impo == {}:
+    if node_impo == {}:
         for lab , graph_dict in graphs.items():
             for gid,g in graph_dict.items():
                 graphs[lab][gid] = from_edge_to_nodeExpl(g)    

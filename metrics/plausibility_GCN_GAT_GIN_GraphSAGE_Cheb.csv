@@ -1,0 +1,6 @@
+,model,expl,class 0,class 1,class 2
+0,GCN,subgraphX,0.5,0.5,0.5
+1,GAT,subgraphX,0.5,0.5,0.5
+2,GIN,subgraphX,0.5,0.5,0.5
+3,GraphSAGE,subgraphX,0.5,0.5,0.5
+4,Cheb,subgraphX,-100.0,-100.0,-100.0

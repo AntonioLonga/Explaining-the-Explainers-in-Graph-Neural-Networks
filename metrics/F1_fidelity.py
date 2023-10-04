@@ -15,7 +15,11 @@ def build_expl(DATASET, MODEL, dataset_fun, framework,expl, verbose=False, lamb=
     if verbose:
         print(path)
     dataset = dataset_fun()
-    gcn = framework(dataset, device="cpu")
+
+    if MODEL == "MinCutPooling":
+        gcn = framework(dataset, max_nodes=70, device="cpu")
+    else:
+        gcn = framework(dataset, device="cpu")
     gcn.load_model(path)
 
     if verbose:
@@ -159,6 +163,10 @@ def compute_fidelity(gcn,graphs,y=1,color=False):
         res_suf.append(np.mean(suf))
         res_comp.append(np.mean(comp))
         cc = cc +1
+        if cc % 200 == 0:
+            print(cc)
+        #if cc == 20:
+        #    break    
 
 
     return np.mean(res_suf),np.mean(res_comp)
